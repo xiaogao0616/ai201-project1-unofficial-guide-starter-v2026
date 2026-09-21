@@ -22,11 +22,13 @@ Corpus: campus_life
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
+The Unofficial Guide is a retrieval-based question-answering system using the `campus_life` corpus of 88 short documents. It answers questions about campus policies, course assessments, library hours, housing, and other topics covered by those documents. The system retrieves document chunks and asks a language model to answer using only those excerpts, with source filenames. A relevance gate stops questions whose best retrieval distance exceeds the cutoff; this reduces unsupported answers but does not guarantee that every accepted question is answerable.
 
-     Milestone 5. -->
+## Milestones 1 and 2 — Setup and Evaluation Targets
+
+**Milestone 1:** I selected `campus_life` and indexed 88 documents containing 27,908 characters. The starter produced 88 chunks, averaging 317 characters, with a minimum of 178 and a maximum of 549. This showed that the starter's 800-character windows kept these short documents intact. Before replacing the chunker, I also ran the separate `advice_threads` sample command and recorded its total of 26 chunks.
+
+**Milestone 2:** I wrote five factual test questions in `questions.py`, covering major declaration, printing credit, study abroad applications, CS 340 exams, and library hours, each with an `expects` phrase. I retained five `OUT_OF_SCOPE` questions for testing refusals. My five targets are recorded in `criteria.md`: answer-containing retrieval for at least 4 of 5 questions, a source for every answer, refusal of at least 4 of 5 out-of-scope questions, chunk lengths of 100–500 characters, and the expected phrase in at least 4 of 5 final answers. These are targets, not claims that all five criteria have passed the Unit 2 evaluation.
 
 ## Chunking Strategy
 
@@ -98,30 +100,45 @@ Laundry costs $1.50 wash, $1.25 dry, coin or card. On noise: loud until about 1a
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** How many exams does CS 340 have?
 
 **Answer:**
 
+```text
+CS 340 has one midterm and a final.
+
+Sources: `course_cs_340_exams.txt` and `course_cs_340.txt`
 ```
-```
 
-**My relevance cutoff:**
+**My relevance cutoff:** `0.6` (the starter value, retained after measurement).
 
-<!-- The number you set in config.py, and how you got there.
+The five in-corpus questions had best distances from 0.3075 to 0.3926. The five out-of-scope questions had best distances from 0.8246 to 0.9340. The cutoff of 0.6 falls between these groups: all five in-corpus questions passed the gate, and all five out-of-scope questions were blocked. These results support keeping 0.6 for this test set, but do not establish how well it handles unseen questions, especially campus-related questions that the documents do not answer.
 
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
+I retained the five-result retrieval setting. I inspected the assembled prompt and grounding instruction with `--show-prompt`: it requires using only the provided documents, admitting missing information, and naming source files. In the CS 340 example, the answer used the correct course's exam information despite CS 210 excerpts also appearing in the prompt. I left the grounding instruction unchanged after this check.
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| By when must students declare their major? | Yes | 0.3871 |
+| How much campus printing credit does each student receive? | Yes | 0.3758 |
+| When should students apply for a study abroad program? | Yes | 0.3339 |
+| How many exams does CS 340 have? | Yes | 0.3075 |
+| What are the library's hours during the term and during reading week? | Yes | 0.3926 |
+| What is the capital of Mongolia? | No | 0.8246 |
+| How do I change the oil in a diesel engine? | No | 0.9340 |
+| Who won the 1994 World Cup? | No | 0.8859 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.8442 |
+| How do I write a for loop in Rust? | No | 0.8960 |
+
+**Out-of-scope check:**
+
+```text
+Question: What is the capital of Mongolia?
+(best distance 0.825, cutoff 0.6)
+
+I don't have enough information about that.
+
+0 model calls this session
+```
 
 ## How I Used AI
 
