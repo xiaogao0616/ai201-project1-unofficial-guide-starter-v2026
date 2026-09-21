@@ -142,23 +142,9 @@ I don't have enough information about that.
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1. Chunking implementation.** I asked ChatGPT to guide me through replacing the starter chunker. It first helped me implement one chunk per document, then suggested printing documents over 500 characters and inspecting their paragraphs. After I shared the two long housing posts, it provided a paragraph-based implementation that repeats the title in subsequent chunks. I used that implementation without further algorithm changes, replacing the temporary one-document-per-chunk version. I ran it locally and checked every chunk's length: it produced 90 chunks ranging from 170 to 461 characters, with no violations of my 100–500 character target. The implementation is suited to the current corpus but does not handle an oversized individual paragraph.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
-
-<!-- ── Stretch features ─────────────────────────────────────────────────────
-     Doing one? Say so here BEFORE you start. A feature this README never
-     claims earns nothing.
-     ───────────────────────────────────────────────────────────────────────── -->
+**2. Retrieval cutoff and grounding checks.** I shared retrieval results for five in-corpus and five out-of-scope questions and asked ChatGPT to help interpret them. It recommended retaining the default cutoff of 0.6 because the two distance ranges did not overlap, and it pointed out that CS 210 excerpts could distract the model when answering about CS 340. I did not change the cutoff or grounding instruction. Instead, I checked the actual assembled prompt and answer using `--show-prompt`, then tested an out-of-scope question. The CS 340 answer named the correct sources, and the out-of-scope question was refused with zero model calls. I added the measured distances and actual outputs to this README with AI assistance organizing the text.
 
 ---
 
