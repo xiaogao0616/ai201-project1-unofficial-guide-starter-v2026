@@ -150,10 +150,6 @@ I don't have enough information about that.
 
 # Unit 2
 
-<!-- These sections get ADDED to what's already above. Don't delete or rewrite
-     unit 1 — the point is that someone can see what you said before you knew
-     how it went. -->
-
 ## Run Log — Before
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
@@ -265,55 +261,76 @@ character criterion.
 | 5 | Final answer contains the expected phrase | MET | Every answer included its expected phrase: “second semester,” “$30,” “October,” “one midterm,” or “2am,” in all three runs. |
 
 ## Diagnoses
+No criteria were missed in the before evaluation, so there is no failed
+question or pipeline stage to diagnose. All five in-corpus questions retrieved
+supporting chunks, named sources, and contained their expected phrases in all
+three runs. The relevance gate also refused all five out-of-corpus questions.
 
-<!-- For each miss: which stage caused it, and how. The stage alone isn't
-     enough — you need the mechanism.
+Because every criterion passed on the first evaluation, some targets were
+probably conservative rather than evidence that the system is strong in every
+case. I would tighten criterion 1 from 4 of 5 to 5 of 5 retrieved chunks
+containing the answer, and criterion 5 from 4 of 5 to 5 of 5 final answers
+containing the expected phrase. I would keep criterion 3 at 4 of 5 for now,
+because the five out-of-corpus questions are clearly unrelated to the campus
+corpus and do not test borderline campus-related questions.
 
-     Not a diagnosis: "Question 3 didn't work."
-     A diagnosis:     "Question 3 asks about laundry costs. The answer is in
-                       one sentence that got split across two chunks, so
-                       neither chunk on its own contains it."
 
-     The five stages: loading → chunking → embedding → retrieval → generation.
-
-     Look for a pattern. If three misses all ask about numbers, that's one
-     problem, not three.
-
-     Missed nothing? Say so, then say honestly whether your targets were set
-     low, and which one you'd tighten and to what.
-
-     Milestone 3. -->
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** I changed `generate.py::GROUNDING_INSTRUCTION` so that every answer must end with exactly one line in the format `Source: filename.txt`. The instruction explicitly forbids parentheses, Markdown emphasis, and the `Sources:` label.
 
-**Why I picked it:**
-
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+**Why I picked it:** Although criterion 2 passed before, the evidence showed inconsistent citation presentation: answers alternated between `Source:`, `Sources:`, and parenthetical filenames. This is a generation-stage inconsistency, so I changed only the generation instruction.
 
 ### Run Log — After
 
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
-
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunks are 100–500 characters | 0 violations | 0 of 90 violations | 0 of 90 violations | 0 of 90 violations | MET |
+| 5. Final answer contains the expected phrase | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 
-**Did it help?**
+Evidence source: `results/run_2026-09-23_2140_after.md`, produced by `run_eval.py::main` and `run_eval.py::check_out_of_scope`.
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
+### Real output — run 1
 
-     Milestone 4. -->
+```text
+Students declare their major at the end of their second semester, or later if needed. There is no penalty for declaring late.
+
+Source: admin_declaring_a_major.txt
+```
+
+```text
+Every student receives $30 of printing per semester, which is approximately 600 black-and-white pages.
+
+Source: admin_printing_quota.txt
+```
+
+```text
+Students should apply for a study abroad program when applications open in October for the following academic year.
+
+Source: admin_study_abroad.txt
+```
+
+```text
+CS 340 has one midterm and a final, making a total of two exams.
+
+Source: course_cs_340_exams.txt
+```
+
+```text
+The library is open until 2am during the term, and until 10pm during reading week.
+
+Source: study_library_hours.txt
+```
+
+```text
+Produced by run_eval.py::check_out_of_scope, cutoff 0.6. Refused 5 of 5.
+```
+
+**Did it help?** Yes, it made citations consistent: all 15 after answers ended with one `Source: filename.txt` line. The five existing numeric criteria stayed at 5 of 5 in every run, so the improvement did not raise those already-maximal scores or change retrieval and gate behavior.
 
 ## What's Still Broken
 
