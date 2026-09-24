@@ -156,46 +156,113 @@ I don't have enough information about that.
 
 ## Run Log — Before
 
-<!-- Your five criteria, three runs each. `python run_eval.py --label before`
-     runs the questions, puts the OUT_OF_SCOPE ones through the gate, and
-     writes it all into results/ for you. Targets come from criteria.md; the
-     verdict column is your call.
-
-     Criterion 3 is measured in one deterministic pass rather than three, so
-     the same number goes in all three run columns. That's correct, not lazy.
-
-     Milestone 1. -->
-
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunks are 100–500 characters | 0 violations | 0 of 90 violations | 0 of 90 violations | 0 of 90 violations | MET |
+| 5. Final answer contains the expected phrase | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+Evidence for criteria 1, 2, 3, and 5 is from `results/run_2026-09-23_2105_before.md`, produced by `run_eval.py::main` and `run_eval.py::check_out_of_scope`. Criterion 4 was measured from the chunks produced by `chunker.py::split_documents`.
 
-<!-- Underneath, paste the REAL output for each criterion from one of your
-     runs — the actual text your system produced, not a description of it.
-     Name the file and function that produced it. -->
+### Criterion 1, 2, and 5 — real output from run 1
+
+```text
+By when must students declare their major?
+
+Best distance: 0.3871 (passed the gate)
+Sources retrieved: admin_add_drop_deadline.txt, admin_declaring_a_major.txt,
+admin_graduation_requirements.txt, admin_pass_fail_option.txt,
+admin_study_abroad.txt
+
+Students declare their major at the end of their second semester, or later if
+needed, as there is no penalty for declaring late.
+
+Source: admin_declaring_a_major.txt
+```
+
+```text
+How much campus printing credit does each student receive?
+
+Best distance: 0.3758 (passed the gate)
+Sources retrieved: admin_campus_jobs_and_financial_aid.txt,
+admin_graduation_requirements.txt, admin_printing_quota.txt, money_jobs.txt,
+money_textbooks.txt
+
+Each student receives $30 of printing per semester.
+
+Source: admin_printing_quota.txt
+```
+
+```text
+When should students apply for a study abroad program?
+
+Best distance: 0.3339 (passed the gate)
+Sources retrieved: admin_graduation_requirements.txt, admin_pass_fail_option.txt,
+admin_study_abroad.txt, advising_registration.txt, course_cs_340.txt
+
+Students should apply in October for the following academic year.
+
+Source: admin_study_abroad.txt
+```
+
+```text
+How many exams does CS 340 have?
+
+Best distance: 0.3075 (passed the gate)
+Sources retrieved: course_cs_210.txt, course_cs_210_exams.txt,
+course_cs_340.txt, course_cs_340_exams.txt, course_cs_340_workload.txt
+
+CS 340 has one midterm and a final (two exams total).
+
+Source: course_cs_340_exams.txt (also mentioned in course_cs_340.txt).
+```
+
+```text
+What are the library's hours during the term and during reading week?
+
+Best distance: 0.3926 (passed the gate)
+Sources retrieved: housing_calder_annexe_noise.txt,
+housing_morrow_house_noise.txt, money_jobs.txt, money_textbooks.txt,
+study_library_hours.txt
+
+During the term, the library is open until 2am, and during reading week it is
+open until 10pm (study_library_hours.txt and housing_morrow_house_noise.txt).
+```
+
+### Criterion 3 — real output
+
+```text
+Produced by run_eval.py::check_out_of_scope, cutoff 0.6. Refused 5 of 5.
+
+What is the capital of Mongolia? — best distance 0.825 — refused
+How do I change the oil in a diesel engine? — best distance 0.934 — refused
+Who won the 1994 World Cup? — best distance 0.886 — refused
+What is the recommended dosage of ibuprofen for a headache? — best distance
+0.844 — refused
+How do I write a for loop in Rust? — best distance 0.896 — refused
+```
+
+### Criterion 4 — chunk measurement
+
+```text
+Produced by chunker.py::split_documents.
+
+90 chunks were produced. The shortest chunk was 170 characters and the
+longest chunk was 461 characters. There were no violations of the 100–500
+character criterion.
+```
 
 ## Verdicts
 
-<!-- MET or MISSED for each of the five, against the target you wrote last
-     unit — not a new one. Plus a sentence on how you decided. That sentence
-     matters most where it was close.
-
-     If your target said 4 of 5 and your runs came out 4, 3, 4, that's a MISS.
-     The target has to hold, not show up occasionally.
-
-     Milestone 2. -->
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | All five in-corpus questions passed in every run. Each question’s retrieved-source list includes the document containing the answer. |
+| 2 | Every answer names a source | MET | All 15 generated answers named at least one source file. |
+| 3 | Gate stops out-of-corpus questions | MET | The gate refused all five out-of-corpus questions. Because retrieval and the cutoff comparison are deterministic, the same 5 of 5 result is recorded in every run column. |
+| 4 | Chunks are 100–500 characters | MET | `chunker.py::split_documents` produced 90 chunks ranging from 170 to 461 characters, so there were zero violations. |
+| 5 | Final answer contains the expected phrase | MET | Every answer included its expected phrase: “second semester,” “$30,” “October,” “one midterm,” or “2am,” in all three runs. |
 
 ## Diagnoses
 
