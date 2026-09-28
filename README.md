@@ -146,6 +146,8 @@ I don't have enough information about that.
 
 **2. Retrieval cutoff and grounding checks.** I shared retrieval results for five in-corpus and five out-of-scope questions and asked ChatGPT to help interpret them. It recommended retaining the default cutoff of 0.6 because the two distance ranges did not overlap, and it pointed out that CS 210 excerpts could distract the model when answering about CS 340. I did not change the cutoff or grounding instruction. Instead, I checked the actual assembled prompt and answer using `--show-prompt`, then tested an out-of-scope question. The CS 340 answer named the correct sources, and the out-of-scope question was refused with zero model calls. I added the measured distances and actual outputs to this README with AI assistance organizing the text.
 
+**3. Unit 2 evaluation and improvement.** I shared the three before-run logs with ChatGPT to help aggregate the per-question results into the five acceptance criteria. It helped me notice that the answers met the source requirement but used inconsistent citation formats. I chose a single generation-stage change: I strengthened `generate.py::GROUNDING_INSTRUCTION` to require one final `Source: filename.txt` line. I then ran the after evaluation with caching off and used the generated run log, rather than AI-generated results, to fill in the after table and conclusion.
+
 ---
 
 # Unit 2
@@ -334,17 +336,8 @@ Produced by run_eval.py::check_out_of_scope, cutoff 0.6. Refused 5 of 5.
 
 ## What's Still Broken
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
-
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
-
-     Milestone 5. -->
+No original criterion was missed after the fix. However, that does not mean the system is complete. The test set is small and fixed: the five out-of-corpus questions are clearly unrelated to campus life, so the relevance gate has not been tested on harder borderline questions, such as campus questions that the corpus does not answer. The citation-format change also checks that a filename is present, not that the cited filename is the best or only supporting source. I stopped here because the assignment asks for one isolated change and a comparable before/after measurement; adding harder test cases or source-entailment checks would change the evaluation design rather than test the single prompt change.
 
 ## What I'd Do Differently
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
-
-     Milestone 5. -->
+I would make criteria 1 and 5 stricter from at least 4 of 5 to 5 of 5 because this corpus and these five questions were all chosen from explicit facts in the documents, and all three runs reached 5 of 5. For criterion 3, I would keep the numerical target at 4 of 5 but replace some obviously unrelated questions with borderline campus-related questions that are absent from the corpus. That would test whether the relevance gate rejects unsupported questions without simply relying on a large semantic distance.
